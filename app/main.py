@@ -5,8 +5,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import api_router
 from app.core.config import settings
-from app.core.database import Base, engine
-from app.models import user, resume, job, analysis  # noqa: F401 — реєструє моделі в Base.metadata
 
 logging.basicConfig(level=logging.INFO)
 
@@ -22,11 +20,9 @@ app.add_middleware(
 
 app.include_router(api_router, prefix=settings.API_V1_PREFIX)
 
-
-@app.on_event("startup")
-def on_startup():
-    # Для MVP створюємо таблиці напряму. У продакшні перейти на Alembic-міграції.
-    Base.metadata.create_all(bind=engine)
+# Схема БД тепер повністю під контролем Alembic (не автостворюється тут).
+# Перед першим запуском виконай: alembic upgrade head
+# Дивись README.md, розділ "Міграції (Alembic)".
 
 
 @app.get("/")

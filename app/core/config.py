@@ -13,10 +13,14 @@ class Settings(BaseSettings):
     DEBUG: bool = True
 
     # --- База даних ---
-    # За замовчуванням SQLite для швидкого локального старту.
-    # Для продакшну постав, наприклад:
-    # postgresql+psycopg2://user:password@localhost:5432/ats_insight
-    DATABASE_URL: str = "sqlite:///./ats_insight.db"
+    # PostgreSQL за замовчуванням (відповідає архітектурі проєкту).
+    # Для docker-compose значення переопреділяється env-змінною DATABASE_URL
+    # (дивись docker-compose.yml). Для локального запуску без Docker онови
+    # значення нижче або в .env під свій локальний PostgreSQL.
+    DATABASE_URL: str = "postgresql+psycopg2://ats_user:ats_password@localhost:5432/ats_insight"
+    # Для швидких локальних тестів без встановлення PostgreSQL можна
+    # тимчасово розкоментувати рядок нижче в .env:
+    # DATABASE_URL=sqlite:///./ats_insight.db
 
     # --- Auth / JWT ---
     SECRET_KEY: str = "CHANGE_ME_IN_PRODUCTION"
