@@ -12,18 +12,13 @@ app = FastAPI(title=settings.PROJECT_NAME, debug=settings.DEBUG)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # у продакшні звузити до домену фронтенду
+    allow_origins=[settings.FRONTEND_BASE_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 app.include_router(api_router, prefix=settings.API_V1_PREFIX)
-
-# Схема БД тепер повністю під контролем Alembic (не автостворюється тут).
-# Перед першим запуском виконай: alembic upgrade head
-# Дивись README.md, розділ "Міграції (Alembic)".
-
 
 @app.get("/")
 def root():
