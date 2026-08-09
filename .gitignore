@@ -1,7 +1,26 @@
+# Python virtual environments
+.venv/
 venv/
-__pycache__/
-*.pyc
+env/
+
+# Environment variables
 .env
+.env.*
+!.env.example
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Databases
 *.db
-uploads/*
-!uploads/.gitkeep
+*.sqlite
+*.sqlite3
+
+# Uploaded files
+uploads/
+backend/uploads/
+
+# IDE
+.vscode/
+.idea/
