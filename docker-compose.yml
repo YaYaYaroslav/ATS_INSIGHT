@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   db:
     image: postgres:16-alpine
@@ -10,22 +12,39 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ats_user -d ats_insight"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  api:
-    build:
-      context: ./ats_insight_backend
+  backend:
+    build: ./backend
     restart: unless-stopped
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     env_file:
-      - .env
+      - ./backend/.env
     environment:
       DATABASE_URL: postgresql+psycopg2://ats_user:ats_password@db:5432/ats_insight
     ports:
       - "8000:8000"
     volumes:
-      - ./ats_insight_backend/uploads:/app/uploads
+      - ./backend/uploads:/app/uploads
+    # Run migrations before starting the server.
     command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: http://localhost:8000/api/v1
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
 
 volumes:
   pgdata:

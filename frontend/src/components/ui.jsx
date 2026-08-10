@@ -19,7 +19,7 @@ export function Card({ children, className = "" }) {
   );
 }
 
-export function Spinner({ label = "Завантаження..." }) {
+export function Spinner({ label = "Loading..." }) {
   return (
     <div className="flex items-center gap-3 text-text-muted text-sm">
       <span className="w-4 h-4 border-2 border-signal border-t-transparent rounded-full animate-spin" />

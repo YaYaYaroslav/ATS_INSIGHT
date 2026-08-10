@@ -12,7 +12,6 @@ client.interceptors.request.use((config) => {
   return config;
 });
 
-// Якщо токен протух (401) — прибираємо його і кидаємо на логін.
 client.interceptors.response.use(
   (response) => response,
   (error) => {

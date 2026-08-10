@@ -13,10 +13,9 @@ export default function ResumesPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await resumesApi.list();
-      setResumes(data);
-    } catch (err) {
-      setError("Не вдалося завантажити список резюме");
+      setResumes(await resumesApi.list());
+    } catch {
+      setError("Could not load your resumes");
     } finally {
       setLoading(false);
     }
@@ -35,7 +34,7 @@ export default function ResumesPage() {
       await resumesApi.upload(file);
       await load();
     } catch (err) {
-      setError(err.response?.data?.detail || "Не вдалося завантажити файл");
+      setError(err.response?.data?.detail || "Could not upload the file");
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -51,7 +50,7 @@ export default function ResumesPage() {
       await resumesApi.upload(file, null, parentId);
       await load();
     } catch (err) {
-      setError(err.response?.data?.detail || "Не вдалося завантажити нову версію");
+      setError(err.response?.data?.detail || "Could not upload the new version");
     } finally {
       setUploading(false);
       e.target.value = "";
@@ -59,7 +58,7 @@ export default function ResumesPage() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Видалити це резюме та всі пов'язані аналізи?")) return;
+    if (!window.confirm("Delete this resume and all related analyses?")) return;
     await resumesApi.remove(id);
     await load();
   };
@@ -69,10 +68,9 @@ export default function ResumesPage() {
       const blob = await resumesApi.fileBlob(id);
       const url = window.URL.createObjectURL(blob);
       window.open(url, "_blank", "noopener,noreferrer");
-      // Звільняємо об'єктний URL трохи згодом, давши вкладці час відкритись
       setTimeout(() => window.URL.revokeObjectURL(url), 30000);
-    } catch (err) {
-      setError("Не вдалося відкрити файл резюме");
+    } catch {
+      setError("Could not open the resume file");
     }
   };
 
@@ -80,13 +78,13 @@ export default function ResumesPage() {
     <Layout>
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="font-display text-2xl font-semibold">Резюме</h1>
-          <p className="text-text-muted text-sm mt-1">Завантаж резюме, щоб почати аналіз проти вакансії</p>
+          <h1 className="font-display text-2xl font-semibold">Resumes</h1>
+          <p className="text-text-muted text-sm mt-1">Upload a resume to start analyzing it against a job</p>
         </div>
         <label>
           <input type="file" accept=".pdf,.docx" className="hidden" onChange={handleUpload} disabled={uploading} />
           <PrimaryButton as="span" className="cursor-pointer">
-            {uploading ? "Завантаження..." : "+ Завантажити резюме"}
+            {uploading ? "Uploading..." : "+ Upload resume"}
           </PrimaryButton>
         </label>
       </div>
@@ -94,41 +92,42 @@ export default function ResumesPage() {
       <ErrorBanner message={error} />
 
       {loading ? (
-        <Spinner label="Завантажую резюме..." />
+        <Spinner label="Loading resumes..." />
       ) : resumes.length === 0 ? (
         <Card className="text-center py-12">
-          <p className="text-text-muted text-sm">
-            Ще немає жодного резюме. Завантаж PDF або DOCX, щоб почати.
-          </p>
+          <p className="text-text-muted text-sm">No resumes yet. Upload a PDF or DOCX to get started.</p>
         </Card>
       ) : (
         <div className="grid gap-3">
           {resumes.map((resume) => (
             <Card key={resume.id} className="flex items-center justify-between">
               <div>
-                <div className="font-medium text-sm">
-                  {resume.parsed_data?.name || resume.original_filename}
-                </div>
+                <div className="font-medium text-sm">{resume.parsed_data?.name || resume.original_filename}</div>
                 <div className="text-xs text-text-muted font-mono mt-1">
-                  {resume.label} · {resume.file_type.toUpperCase()} · {resume.parsed_data?.skills?.length || 0} навичок
+                  {resume.label} · {resume.file_type.toUpperCase()} · {resume.parsed_data?.skills?.length || 0} skills
                 </div>
                 <div className="text-xs text-text-faint mt-1">
-                  Додано {new Date(resume.created_at).toLocaleDateString("uk-UA", { day: "numeric", month: "short", year: "numeric" })}
+                  Added{" "}
+                  {new Date(resume.created_at).toLocaleDateString("en-US", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleViewFile(resume.id)}
                   className="text-sm text-text-muted hover:text-signal px-2"
-                  title="Переглянути файл"
+                  title="View file"
                 >
-                  Файл
+                  File
                 </button>
                 <Link to={`/resumes/${resume.id}/versions`}>
-                  <SecondaryButton>Версії</SecondaryButton>
+                  <SecondaryButton>Versions</SecondaryButton>
                 </Link>
                 <Link to={`/analyze?resumeId=${resume.id}`}>
-                  <PrimaryButton>Аналізувати</PrimaryButton>
+                  <PrimaryButton>Analyze</PrimaryButton>
                 </Link>
                 <label>
                   <input
@@ -137,14 +136,14 @@ export default function ResumesPage() {
                     className="hidden"
                     onChange={(e) => handleNewVersion(resume.id, e)}
                   />
-                  <SecondaryButton as="span" className="cursor-pointer" title="Завантажити нову версію">
-                    + Версія
+                  <SecondaryButton as="span" className="cursor-pointer" title="Upload a new version">
+                    + Version
                   </SecondaryButton>
                 </label>
                 <button
                   onClick={() => handleDelete(resume.id)}
                   className="text-text-faint hover:text-gap text-sm px-2"
-                  title="Видалити"
+                  title="Delete"
                 >
                   ✕
                 </button>

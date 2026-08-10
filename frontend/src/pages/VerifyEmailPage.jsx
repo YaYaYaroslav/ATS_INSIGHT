@@ -12,18 +12,18 @@ export default function VerifyEmailPage() {
   useEffect(() => {
     if (!token) {
       setStatus("error");
-      setMessage("Посилання неповне — відсутній токен підтвердження.");
+      setMessage("This link is incomplete — the verification token is missing.");
       return;
     }
     authApi
       .verifyEmail(token)
       .then((data) => {
         setStatus("success");
-        setMessage(data.message || "Email підтверджено.");
+        setMessage(data.message || "Email verified.");
       })
       .catch((err) => {
         setStatus("error");
-        setMessage(err.response?.data?.detail || "Не вдалося підтвердити email.");
+        setMessage(err.response?.data?.detail || "Could not verify this email.");
       });
   }, [token]);
 
@@ -34,7 +34,7 @@ export default function VerifyEmailPage() {
           ATS <span className="text-signal">Insight</span>
         </div>
         <Card>
-          {status === "loading" && <p className="text-sm text-text-muted">Підтверджую email...</p>}
+          {status === "loading" && <p className="text-sm text-text-muted">Verifying email...</p>}
           {status === "success" && (
             <>
               <div className="text-match text-2xl mb-3">✓</div>
@@ -50,7 +50,7 @@ export default function VerifyEmailPage() {
         </Card>
         <div className="text-sm text-text-muted mt-4">
           <Link to="/login" className="text-signal hover:underline">
-            До входу
+            Back to login
           </Link>
         </div>
       </div>

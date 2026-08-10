@@ -19,7 +19,7 @@ export default function JobsPage() {
     try {
       setJobs(await jobsApi.list());
     } catch {
-      setError("Не вдалося завантажити список вакансій");
+      setError("Could not load your jobs");
     } finally {
       setLoading(false);
     }
@@ -30,7 +30,7 @@ export default function JobsPage() {
   }, [load]);
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Видалити цю вакансію та всі пов'язані аналізи?")) return;
+    if (!window.confirm("Delete this job and all related analyses?")) return;
     await jobsApi.remove(id);
     await load();
   };
@@ -50,7 +50,7 @@ export default function JobsPage() {
       }
       await load();
     } catch (err) {
-      setError(err.response?.data?.detail || "Не вдалося обробити вакансію. Спробуй вставити текст вручну.");
+      setError(err.response?.data?.detail || "Could not process this job. Try pasting the text manually.");
     } finally {
       setSubmitting(false);
     }
@@ -58,10 +58,10 @@ export default function JobsPage() {
 
   return (
     <Layout>
-      <h1 className="font-display text-2xl font-semibold mb-1">Вакансії</h1>
+      <h1 className="font-display text-2xl font-semibold mb-1">Jobs</h1>
       <p className="text-text-muted text-sm mb-8">
-        Встав посилання на вакансію з work.ua — ми самі витягнемо опис. Робота.ua блокує
-        автоматичні запити, тож звідти опис доведеться вставити вручну (вкладка "Вручну").
+        Paste a work.ua job link and we'll pull the description automatically. robota.ua blocks
+        automated requests, so for that site paste the description manually (the "Manual" tab).
       </p>
 
       <Card className="mb-8">
@@ -72,7 +72,7 @@ export default function JobsPage() {
               mode === "url" ? "bg-signal text-base-bg" : "text-text-muted hover:text-text-primary"
             }`}
           >
-            За посиланням
+            From link
           </button>
           <button
             onClick={() => setMode("text")}
@@ -80,7 +80,7 @@ export default function JobsPage() {
               mode === "text" ? "bg-signal text-base-bg" : "text-text-muted hover:text-text-primary"
             }`}
           >
-            Вручну
+            Manual
           </button>
         </div>
 
@@ -90,7 +90,7 @@ export default function JobsPage() {
           {mode === "url" ? (
             <div>
               <label className="block text-xs text-text-muted mb-1.5">
-                Посилання на вакансію (work.ua або інший сайт з коректною розміткою)
+                Job posting link (work.ua, or any other site with proper markup)
               </label>
               <input
                 type="url"
@@ -101,13 +101,13 @@ export default function JobsPage() {
                 className="w-full bg-base-surfaceAlt border border-base-border rounded-md px-3 py-2.5 text-sm focus:border-signal outline-none font-mono"
               />
               <p className="text-xs text-text-faint mt-1.5">
-                robota.ua блокує автоматичні запити — для неї встав текст вакансії вручну.
+                robota.ua blocks automated requests — paste that description manually instead.
               </p>
             </div>
           ) : (
             <>
               <div>
-                <label className="block text-xs text-text-muted mb-1.5">Назва посади (необов'язково)</label>
+                <label className="block text-xs text-text-muted mb-1.5">Job title (optional)</label>
                 <input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
@@ -116,52 +116,57 @@ export default function JobsPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs text-text-muted mb-1.5">Текст вакансії</label>
+                <label className="block text-xs text-text-muted mb-1.5">Job description</label>
                 <textarea
                   required
                   rows={8}
                   value={rawText}
                   onChange={(e) => setRawText(e.target.value)}
                   className="w-full bg-base-surfaceAlt border border-base-border rounded-md px-3 py-2.5 text-sm focus:border-signal outline-none"
-                  placeholder="Встав повний текст опису вакансії..."
+                  placeholder="Paste the full job description..."
                 />
               </div>
             </>
           )}
           <PrimaryButton type="submit" disabled={submitting}>
-            {submitting ? "Обробка..." : "Додати вакансію"}
+            {submitting ? "Processing..." : "Add job"}
           </PrimaryButton>
         </form>
       </Card>
 
       {loading ? (
-        <Spinner label="Завантажую вакансії..." />
+        <Spinner label="Loading jobs..." />
       ) : jobs.length === 0 ? (
         <Card className="text-center py-10">
-          <p className="text-text-muted text-sm">Ще немає жодної вакансії.</p>
+          <p className="text-text-muted text-sm">No jobs yet.</p>
         </Card>
       ) : (
         <div className="grid gap-3">
           {jobs.map((job) => (
             <Card key={job.id} className="flex items-center justify-between">
               <div>
-                <div className="font-medium text-sm">{job.title || "Без назви"}</div>
+                <div className="font-medium text-sm">{job.title || "Untitled"}</div>
                 <div className="text-xs text-text-muted font-mono mt-1">
-                  {job.parsed_data?.required_skills?.length || 0} обов'язкових навичок ·{" "}
-                  {job.parsed_data?.nice_to_have?.length || 0} бажаних
+                  {job.parsed_data?.required_skills?.length || 0} required skills ·{" "}
+                  {job.parsed_data?.nice_to_have?.length || 0} nice-to-have
                 </div>
                 <div className="text-xs text-text-faint mt-1">
-                  Додано {new Date(job.created_at).toLocaleDateString("uk-UA", { day: "numeric", month: "short", year: "numeric" })}
+                  Added{" "}
+                  {new Date(job.created_at).toLocaleDateString("en-US", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Link to={`/analyze?jobId=${job.id}`}>
-                  <SecondaryButton>Аналізувати</SecondaryButton>
+                  <SecondaryButton>Analyze</SecondaryButton>
                 </Link>
                 <button
                   onClick={() => handleDelete(job.id)}
                   className="text-text-faint hover:text-gap text-sm px-2"
-                  title="Видалити"
+                  title="Delete"
                 >
                   ✕
                 </button>

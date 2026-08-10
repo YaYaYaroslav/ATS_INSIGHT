@@ -1,26 +1,26 @@
-# Python virtual environments
-.venv/
-venv/
-env/
+# Python
+backend/.venv/
+**/__pycache__/
+*.pyc
+backend/*.db
+backend/.pytest_cache/
+backend/.ruff_cache/
 
-# Environment variables
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Env files (commit .env.example, never .env)
 .env
-.env.*
-!.env.example
+backend/.env
+frontend/.env
+frontend/.env.local
 
-# Python cache
-__pycache__/
-*.py[cod]
+# Uploaded resumes
+backend/uploads/*
+!backend/uploads/.gitkeep
 
-# Databases
-*.db
-*.sqlite
-*.sqlite3
-
-# Uploaded files
-uploads/
-backend/uploads/
-
-# IDE
+# Editors / OS
 .vscode/
 .idea/
+.DS_Store

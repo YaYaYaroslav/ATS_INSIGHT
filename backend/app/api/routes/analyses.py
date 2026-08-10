@@ -18,16 +18,15 @@ router = APIRouter(prefix="/analyses", tags=["Analyses"])
 def create_analysis(payload: AnalysisCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     resume = db.query(Resume).filter(Resume.id == payload.resume_id, Resume.user_id == current_user.id).first()
     if not resume:
-        raise HTTPException(status_code=404, detail="Резюме не знайдено")
+        raise HTTPException(status_code=404, detail="Resume not found")
 
     job = db.query(Job).filter(Job.id == payload.job_id, Job.user_id == current_user.id).first()
     if not job:
-        raise HTTPException(status_code=404, detail="Вакансію не знайдено")
+        raise HTTPException(status_code=404, detail="Job not found")
 
-    # --- Крок 1: rule-based ATS аналіз (працює завжди, навіть без AI) ---
+    # Rule-based ATS scoring always runs, even without an AI provider.
     scores = run_full_analysis(resume.parsed_data, resume.raw_text, job.parsed_data)
 
-    # --- Крок 2: AI рекомендації (тільки якщо use_ai=True і провайдер доступний) ---
     ai_recommendations, ai_score, ai_summary_rewrite = [], None, None
     if payload.use_ai:
         provider = get_ai_provider()
@@ -66,7 +65,6 @@ def create_analysis(payload: AnalysisCreate, current_user: User = Depends(get_cu
 
 @router.get("", response_model=list[AnalysisHistoryItem])
 def list_analyses(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Analysis History — список усіх минулих аналізів користувача."""
     return (
         db.query(Analysis)
         .filter(Analysis.user_id == current_user.id)
@@ -79,16 +77,15 @@ def list_analyses(current_user: User = Depends(get_current_user), db: Session = 
 def get_analysis(analysis_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     analysis = db.query(Analysis).filter(Analysis.id == analysis_id, Analysis.user_id == current_user.id).first()
     if not analysis:
-        raise HTTPException(status_code=404, detail="Аналіз не знайдено")
+        raise HTTPException(status_code=404, detail="Analysis not found")
     return analysis
 
 
 @router.get("/{analysis_id}/interview-tips")
 def get_interview_tips(analysis_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Поради щодо проходження співбесіди (окремий AI-виклик, бо не всім потрібен одразу)."""
     analysis = db.query(Analysis).filter(Analysis.id == analysis_id, Analysis.user_id == current_user.id).first()
     if not analysis:
-        raise HTTPException(status_code=404, detail="Аналіз не знайдено")
+        raise HTTPException(status_code=404, detail="Analysis not found")
 
     resume = db.query(Resume).filter(Resume.id == analysis.resume_id).first()
     job = db.query(Job).filter(Job.id == analysis.job_id).first()

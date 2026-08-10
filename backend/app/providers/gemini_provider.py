@@ -11,11 +11,12 @@ logger = logging.getLogger(__name__)
 
 
 class GeminiProvider(BaseAIProvider):
+    """Uses the unified `google-genai` SDK, required for the current "AQ.Ab..." API key
+    format — the older `google-generativeai` SDK does not support it."""
+
     def __init__(self):
         if not settings.GEMINI_API_KEY:
-            raise RuntimeError(
-                "GEMINI_API_KEY не задано. Додай його в .env, або встанови AI_PROVIDER=none/ollama."
-            )
+            raise RuntimeError("GEMINI_API_KEY is not set. Add it to .env, or set AI_PROVIDER=none/ollama.")
         self.client = genai.Client(api_key=settings.GEMINI_API_KEY)
         self.model_name = settings.GEMINI_MODEL
 
@@ -23,10 +24,7 @@ class GeminiProvider(BaseAIProvider):
         response = self.client.models.generate_content(
             model=self.model_name,
             contents=prompt,
-            config=types.GenerateContentConfig(
-                temperature=0.4,
-                response_mime_type="application/json",
-            ),
+            config=types.GenerateContentConfig(temperature=0.4, response_mime_type="application/json"),
         )
         raw = (response.text or "").strip()
         try:
@@ -44,27 +42,27 @@ class GeminiProvider(BaseAIProvider):
         overall_score: float,
     ) -> dict:
         prompt = f"""
-Ти — досвідчений career coach і ATS-експерт. Проаналізуй резюме кандидата
-відносно вакансії та дай конкретні, дієві поради.
+You are an experienced career coach and ATS expert. Analyze the candidate's
+resume against the job and give concrete, actionable advice.
 
-РЕЗЮМЕ (структуровані дані):
+RESUME (structured data):
 {json.dumps(resume_parsed, ensure_ascii=False, indent=2)}
 
-ВАКАНСІЯ (структуровані дані):
+JOB (structured data):
 {json.dumps(job_parsed, ensure_ascii=False, indent=2)}
 
-Відсутні навички (є у вакансії, немає в резюме): {missing_skills}
-Поточний ATS Score: {overall_score}/100
+Missing skills (present in the job, absent from the resume): {missing_skills}
+Current ATS Score: {overall_score}/100
 
-Поверни СТРОГО JSON у форматі (без жодного тексту навколо):
+Return STRICT JSON in this format (no surrounding text):
 {{
-  "recommendations": ["порада 1", "порада 2", "порада 3", "порада 4", "порада 5"],
-  "ai_score": <число від 0 до 10, оцінка загальної відповідності резюме вакансії>,
-  "summary_rewrite": "новий покращений абзац Summary для цього резюме під цю вакансію, 2-4 речення"
+  "recommendations": ["tip 1", "tip 2", "tip 3", "tip 4", "tip 5"],
+  "ai_score": <number 0-10, overall resume-to-job fit>,
+  "summary_rewrite": "a new, improved Summary paragraph for this resume tailored to this job, 2-4 sentences"
 }}
 
-Поради мають бути конкретними (не загальними фразами), базуватись на реальних
-прогалинах між резюме і вакансією, і бути українською мовою.
+Recommendations must be specific (not generic phrases), based on real gaps
+between the resume and the job.
 """
         try:
             result = self._call_json(prompt)
@@ -76,22 +74,22 @@ class GeminiProvider(BaseAIProvider):
         except Exception as exc:
             logger.exception("Gemini generate_recommendations failed: %s", exc)
             return {
-                "recommendations": ["Не вдалося отримати AI-рекомендації. Спробуй ще раз пізніше."],
+                "recommendations": ["Could not get AI recommendations. Please try again later."],
                 "ai_score": None,
                 "summary_rewrite": None,
             }
 
     def rewrite_bullet_points(self, bullet_points: list[str], job_parsed: dict) -> list[str]:
         prompt = f"""
-Перепиши наступні bullet points резюме так, щоб вони:
-- починались з дієслів дії (action verbs)
-- містили вимірювані результати там, де це можливо (навіть орієнтовні)
-- були релевантні до цієї вакансії: {json.dumps(job_parsed.get('keywords', []), ensure_ascii=False)}
+Rewrite the following resume bullet points so they:
+- start with action verbs
+- include measurable results where possible (even approximate)
+- are relevant to this job: {json.dumps(job_parsed.get('keywords', []), ensure_ascii=False)}
 
-Оригінальні bullet points:
+Original bullet points:
 {json.dumps(bullet_points, ensure_ascii=False, indent=2)}
 
-Поверни СТРОГО JSON: {{"rewritten": ["...", "...", ...]}}
+Return STRICT JSON: {{"rewritten": ["...", "...", ...]}}
 """
         try:
             result = self._call_json(prompt)
@@ -102,14 +100,13 @@ class GeminiProvider(BaseAIProvider):
 
     def interview_tips(self, resume_parsed: dict, job_parsed: dict) -> list[str]:
         prompt = f"""
-На основі цього резюме та вакансії дай 5 конкретних порад щодо підготовки
-до співбесіди (технічні теми для повторення, слабкі місця в досвіді,
-питання, які варто підготувати).
+Based on this resume and job, give 5 concrete interview-preparation tips
+(technical topics to review, weak spots in experience, questions to prepare for).
 
-Резюме: {json.dumps(resume_parsed, ensure_ascii=False)}
-Вакансія: {json.dumps(job_parsed, ensure_ascii=False)}
+Resume: {json.dumps(resume_parsed, ensure_ascii=False)}
+Job: {json.dumps(job_parsed, ensure_ascii=False)}
 
-Поверни СТРОГО JSON: {{"tips": ["...", "...", "...", "...", "..."]}}
+Return STRICT JSON: {{"tips": ["...", "...", "...", "...", "..."]}}
 """
         try:
             result = self._call_json(prompt)

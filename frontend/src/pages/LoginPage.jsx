@@ -26,9 +26,9 @@ export default function LoginPage() {
     } catch (err) {
       if (err.response?.status === 403) {
         setNeedsVerification(true);
-        setError(err.response?.data?.detail || "Email не підтверджено");
+        setError(err.response?.data?.detail || "Email not verified");
       } else {
-        setError(err.response?.data?.detail || "Невірний email або пароль");
+        setError(err.response?.data?.detail || "Invalid email or password");
       }
     } finally {
       setLoading(false);
@@ -41,7 +41,7 @@ export default function LoginPage() {
       await authApi.resendVerification(email);
       setResendStatus("sent");
     } catch {
-      setResendStatus("sent"); // відповідь бекенду навмисно завжди нейтральна
+      setResendStatus("sent"); // Backend response is intentionally neutral either way
     }
   };
 
@@ -52,7 +52,7 @@ export default function LoginPage() {
           <div className="font-display text-2xl font-semibold">
             ATS <span className="text-signal">Insight</span>
           </div>
-          <div className="text-text-muted text-sm mt-2">Увійди, щоб перевірити своє резюме</div>
+          <div className="text-text-muted text-sm mt-2">Log in to check your resume</div>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-base-surface border border-base-border rounded-lg p-6 space-y-4">
@@ -61,10 +61,10 @@ export default function LoginPage() {
           {needsVerification && (
             <div className="text-sm">
               {resendStatus === "sent" ? (
-                <p className="text-text-muted">Якщо акаунт існує — новий лист вже надісланий.</p>
+                <p className="text-text-muted">If the account exists, a new email has been sent.</p>
               ) : (
                 <SecondaryButton type="button" onClick={handleResend} disabled={resendStatus === "sending"} className="w-full">
-                  {resendStatus === "sending" ? "Надсилаю..." : "Надіслати лист підтвердження ще раз"}
+                  {resendStatus === "sending" ? "Sending..." : "Resend verification email"}
                 </SecondaryButton>
               )}
             </div>
@@ -82,7 +82,7 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label className="block text-xs text-text-muted mb-1.5">Пароль</label>
+            <label className="block text-xs text-text-muted mb-1.5">Password</label>
             <input
               type="password"
               required
@@ -93,14 +93,14 @@ export default function LoginPage() {
             />
           </div>
           <PrimaryButton type="submit" disabled={loading} className="w-full">
-            {loading ? "Вхід..." : "Увійти"}
+            {loading ? "Logging in..." : "Log in"}
           </PrimaryButton>
         </form>
 
         <div className="text-center text-sm text-text-muted mt-4">
-          Немає акаунта?{" "}
+          No account yet?{" "}
           <Link to="/register" className="text-signal hover:underline">
-            Зареєструватись
+            Sign up
           </Link>
         </div>
       </div>

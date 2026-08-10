@@ -25,7 +25,7 @@ export default function NewAnalysisPage() {
         if (!resumeId && r.length) setResumeId(String(r[0].id));
         if (!jobId && j.length) setJobId(String(j[0].id));
       })
-      .catch(() => setError("Не вдалося завантажити резюме/вакансії"))
+      .catch(() => setError("Could not load resumes/jobs"))
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -39,7 +39,7 @@ export default function NewAnalysisPage() {
       const analysis = await analysesApi.create(Number(resumeId), Number(jobId), useAi);
       navigate(`/analyses/${analysis.id}`);
     } catch (err) {
-      setError(err.response?.data?.detail || "Не вдалося запустити аналіз");
+      setError(err.response?.data?.detail || "Could not run the analysis");
       setRunning(false);
     }
   };
@@ -47,7 +47,7 @@ export default function NewAnalysisPage() {
   if (loading) {
     return (
       <Layout>
-        <Spinner label="Завантажую дані..." />
+        <Spinner label="Loading..." />
       </Layout>
     );
   }
@@ -56,9 +56,7 @@ export default function NewAnalysisPage() {
     return (
       <Layout>
         <Card className="text-center py-12">
-          <p className="text-text-muted text-sm">
-            Потрібно щонайменше одне резюме і одна вакансія, щоб запустити аналіз.
-          </p>
+          <p className="text-text-muted text-sm">You need at least one resume and one job to run an analysis.</p>
         </Card>
       </Layout>
     );
@@ -66,14 +64,14 @@ export default function NewAnalysisPage() {
 
   return (
     <Layout>
-      <h1 className="font-display text-2xl font-semibold mb-1">Новий аналіз</h1>
-      <p className="text-text-muted text-sm mb-8">Обери резюме і вакансію для порівняння</p>
+      <h1 className="font-display text-2xl font-semibold mb-1">New analysis</h1>
+      <p className="text-text-muted text-sm mb-8">Pick a resume and a job to compare</p>
 
       <Card>
         <ErrorBanner message={error} />
         <form onSubmit={handleRun} className="space-y-5 mt-2">
           <div>
-            <label className="block text-xs text-text-muted mb-1.5">Резюме</label>
+            <label className="block text-xs text-text-muted mb-1.5">Resume</label>
             <select
               value={resumeId}
               onChange={(e) => setResumeId(e.target.value)}
@@ -88,7 +86,7 @@ export default function NewAnalysisPage() {
           </div>
 
           <div>
-            <label className="block text-xs text-text-muted mb-1.5">Вакансія</label>
+            <label className="block text-xs text-text-muted mb-1.5">Job</label>
             <select
               value={jobId}
               onChange={(e) => setJobId(e.target.value)}
@@ -96,7 +94,7 @@ export default function NewAnalysisPage() {
             >
               {jobs.map((j) => (
                 <option key={j.id} value={j.id}>
-                  {j.title || `Вакансія #${j.id}`}
+                  {j.title || `Job #${j.id}`}
                 </option>
               ))}
             </select>
@@ -104,11 +102,11 @@ export default function NewAnalysisPage() {
 
           <label className="flex items-center gap-2 text-sm text-text-muted">
             <input type="checkbox" checked={useAi} onChange={(e) => setUseAi(e.target.checked)} className="accent-signal" />
-            Отримати AI-рекомендації (Gemini)
+            Get AI recommendations (Gemini)
           </label>
 
           <PrimaryButton type="submit" disabled={running} className="w-full">
-            {running ? "Аналізую..." : "Запустити аналіз"}
+            {running ? "Analyzing..." : "Run analysis"}
           </PrimaryButton>
         </form>
       </Card>

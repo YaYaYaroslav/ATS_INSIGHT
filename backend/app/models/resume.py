@@ -7,6 +7,8 @@ from app.core.database import Base
 
 
 class Resume(Base):
+    """Supports versioning: multiple uploads of the same resume are linked via parent_id."""
+
     __tablename__ = "resumes"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
@@ -14,11 +16,11 @@ class Resume(Base):
 
     parent_id: Mapped[int | None] = mapped_column(ForeignKey("resumes.id"), nullable=True)
     version: Mapped[int] = mapped_column(Integer, default=1)
-    label: Mapped[str | None] = mapped_column(String(100), nullable=True)  # напр. "Resume v2"
+    label: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
     original_filename: Mapped[str] = mapped_column(String(255))
     stored_path: Mapped[str] = mapped_column(String(500))
-    file_type: Mapped[str] = mapped_column(String(10))  # "pdf" | "docx"
+    file_type: Mapped[str] = mapped_column(String(10))
 
     raw_text: Mapped[str] = mapped_column(Text)
     parsed_data: Mapped[dict] = mapped_column(JSON, default=dict)

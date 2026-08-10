@@ -1,7 +1,8 @@
+import os
+
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
-import os
 
 from app.api.deps import get_current_user
 from app.core.database import get_db
@@ -30,21 +31,19 @@ async def upload_resume(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """
-    Завантаження резюме (PDF/DOCX). Якщо передано parent_id — це нова
-    версія вже існуючого резюме (для функції порівняння версій).
-    """
+    """If parent_id is given, this upload is a new version of an existing resume
+    (used for version comparison)."""
     contents = await file.read()
     ext = validate_upload(file, contents)
     stored_path = save_upload(contents, ext)
 
-    if ext == "pdf":
-        raw_text = extract_text_from_pdf(stored_path)
-    else:
-        raw_text = extract_text_from_docx(stored_path)
+    raw_text = extract_text_from_pdf(stored_path) if ext == "pdf" else extract_text_from_docx(stored_path)
 
     if not raw_text.strip():
-        raise HTTPException(status_code=422, detail="Не вдалося витягти текст з файлу. Перевір, що файл не є сканом-зображенням.")
+        raise HTTPException(
+            status_code=422,
+            detail="Could not extract text from the file. Make sure it isn't a scanned image.",
+        )
 
     parsed_data = parse_resume(raw_text)
 
@@ -52,7 +51,7 @@ async def upload_resume(
     if parent_id:
         parent = db.query(Resume).filter(Resume.id == parent_id, Resume.user_id == current_user.id).first()
         if not parent:
-            raise HTTPException(status_code=404, detail="Батьківське резюме не знайдено")
+            raise HTTPException(status_code=404, detail="Parent resume not found")
         sibling_count = db.query(Resume).filter(
             (Resume.parent_id == parent_id) | (Resume.id == parent_id)
         ).count()
@@ -84,18 +83,18 @@ def list_resumes(current_user: User = Depends(get_current_user), db: Session = D
 def get_resume(resume_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     resume = db.query(Resume).filter(Resume.id == resume_id, Resume.user_id == current_user.id).first()
     if not resume:
-        raise HTTPException(status_code=404, detail="Резюме не знайдено")
+        raise HTTPException(status_code=404, detail="Resume not found")
     return resume
 
 
 @router.get("/{resume_id}/file")
 def get_resume_file(resume_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Віддає оригінальний файл резюме (PDF відкривається inline, DOCX — завантажується)."""
+    """Serves the original resume file (PDF opens inline, DOCX downloads)."""
     resume = db.query(Resume).filter(Resume.id == resume_id, Resume.user_id == current_user.id).first()
     if not resume:
-        raise HTTPException(status_code=404, detail="Резюме не знайдено")
+        raise HTTPException(status_code=404, detail="Resume not found")
     if not os.path.exists(resume.stored_path):
-        raise HTTPException(status_code=404, detail="Файл не знайдено на диску")
+        raise HTTPException(status_code=404, detail="File not found on disk")
 
     return FileResponse(
         resume.stored_path,
@@ -107,13 +106,10 @@ def get_resume_file(resume_id: int, current_user: User = Depends(get_current_use
 
 @router.get("/{resume_id}/versions", response_model=list[ResumeVersionCompareItem])
 def compare_resume_versions(resume_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """
-    Повертає всі версії резюме (включно з коренем) разом з їхніми останніми
-    ATS-скорами — це і є фіча "порівняння версій резюме" з архітектури.
-    """
+    """Returns all versions of a resume (including the root) with their latest ATS scores."""
     root = db.query(Resume).filter(Resume.id == resume_id, Resume.user_id == current_user.id).first()
     if not root:
-        raise HTTPException(status_code=404, detail="Резюме не знайдено")
+        raise HTTPException(status_code=404, detail="Resume not found")
 
     root_id = root.parent_id or root.id
     versions = db.query(Resume).filter(
@@ -147,6 +143,6 @@ def compare_resume_versions(resume_id: int, current_user: User = Depends(get_cur
 def delete_resume(resume_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     resume = db.query(Resume).filter(Resume.id == resume_id, Resume.user_id == current_user.id).first()
     if not resume:
-        raise HTTPException(status_code=404, detail="Резюме не знайдено")
+        raise HTTPException(status_code=404, detail="Resume not found")
     db.delete(resume)
     db.commit()

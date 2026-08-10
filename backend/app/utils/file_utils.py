@@ -13,14 +13,14 @@ def validate_upload(file: UploadFile, contents: bytes) -> str:
     if ext not in settings.ALLOWED_EXTENSIONS:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Непідтримуваний формат файлу: {ext}. Дозволено: {settings.ALLOWED_EXTENSIONS}",
+            detail=f"Unsupported file type: {ext}. Allowed: {settings.ALLOWED_EXTENSIONS}",
         )
 
     size_mb = len(contents) / (1024 * 1024)
     if size_mb > settings.MAX_UPLOAD_SIZE_MB:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Файл занадто великий: {size_mb:.2f}MB (максимум {settings.MAX_UPLOAD_SIZE_MB}MB)",
+            detail=f"File too large: {size_mb:.2f}MB (max {settings.MAX_UPLOAD_SIZE_MB}MB)",
         )
 
     return ext.lstrip(".")

@@ -1,5 +1,9 @@
-from app.utils.text_utils import tokenize_words
+"""ATS Rule Engine + Match Calculator.
 
+Weights: Skills 35% / Experience 25% / Education 10% / Keywords 20% / Formatting 10%
+"""
+
+from app.utils.text_utils import tokenize_words
 
 WEIGHTS = {
     "skills": 0.35,
@@ -10,7 +14,9 @@ WEIGHTS = {
 }
 
 
-def calculate_skills_score(resume_skills: list[str], job_required: list[str], job_nice: list[str]) -> tuple[float, list[str], list[str]]:
+def calculate_skills_score(
+    resume_skills: list[str], job_required: list[str], job_nice: list[str]
+) -> tuple[float, list[str], list[str]]:
     resume_set = {s.lower() for s in resume_skills}
     required_set = {s.lower() for s in job_required}
     nice_set = {s.lower() for s in job_nice}
@@ -100,9 +106,7 @@ def run_full_analysis(resume_parsed: dict, resume_raw_text: str, job_parsed: dic
     experience_score = calculate_experience_score(
         resume_parsed.get("experience", []), job_parsed.get("experience_years")
     )
-    education_score = calculate_education_score(
-        resume_parsed.get("education", []), job_parsed.get("education")
-    )
+    education_score = calculate_education_score(resume_parsed.get("education", []), job_parsed.get("education"))
     keywords_score = calculate_keywords_score(resume_raw_text, job_parsed.get("keywords", []))
     formatting_score = calculate_formatting_score(resume_parsed)
 

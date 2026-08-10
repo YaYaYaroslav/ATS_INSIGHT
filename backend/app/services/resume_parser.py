@@ -1,7 +1,8 @@
+"""Rule-based resume parser (no ML/AI) so core ATS scoring works without an AI provider."""
+
 import re
 
 from app.utils.text_utils import normalize, extract_email, extract_phone
-
 
 KNOWN_SKILLS = {
     "python", "java", "javascript", "typescript", "c++", "c#", "go", "rust", "php", "ruby", "kotlin", "swift",
@@ -22,28 +23,18 @@ SECTION_HEADERS = {
         "experience", "work experience", "employment history", "professional experience",
         "досвід роботи", "досвід", "трудова діяльність",
     ],
-    "education": [
-        "education", "academic background", "освіта",
-    ],
-    "skills": [
-        "skills", "technical skills", "core competencies", "навички", "технічні навички",
-    ],
-    "projects": [
-        "projects", "personal projects", "проєкти", "проекти",
-    ],
-    "languages": [
-        "languages", "мови",
-    ],
-    "certificates": [
-        "certificates", "certifications", "сертифікати",
-    ],
-    "summary": [
-        "summary", "profile", "about", "objective", "про себе",
-    ],
+    "education": ["education", "academic background", "освіта"],
+    "skills": ["skills", "technical skills", "core competencies", "навички", "технічні навички"],
+    "projects": ["projects", "personal projects", "проєкти", "проекти"],
+    "languages": ["languages", "мови"],
+    "certificates": ["certificates", "certifications", "сертифікати"],
+    "summary": ["summary", "profile", "about", "objective", "про себе"],
 }
 
 
 def _split_into_sections(text: str) -> dict[str, str]:
+    """Splits the resume into sections by heading lines. Everything before the first
+    recognized heading goes into "header" (name, contacts)."""
     lines = text.split("\n")
     header_to_key = {}
     for key, variants in SECTION_HEADERS.items():
@@ -55,9 +46,7 @@ def _split_into_sections(text: str) -> dict[str, str]:
 
     for line in lines:
         stripped = line.strip().lower().strip(":").strip()
-        matched_key = None
-        if 0 < len(stripped) <= 40 and stripped in header_to_key:
-            matched_key = header_to_key[stripped]
+        matched_key = header_to_key.get(stripped) if 0 < len(stripped) <= 40 else None
 
         if matched_key:
             current = matched_key
@@ -98,6 +87,7 @@ def _extract_location(header_block: str) -> str | None:
 
 
 def _extract_bullet_items(block: str) -> list[dict]:
+    """Groups a section into records: a title line (company/school) followed by bullets."""
     items: list[dict] = []
     current_title = None
     current_bullets: list[str] = []
@@ -132,10 +122,9 @@ def parse_resume(raw_text: str) -> dict:
     text = normalize(raw_text)
     text_lower = text.lower()
     sections = _split_into_sections(text)
-
     header_block = sections.get("header", "")
 
-    parsed = {
+    return {
         "name": _extract_name(header_block),
         "email": extract_email(text),
         "phone": extract_phone(text),
@@ -148,4 +137,3 @@ def parse_resume(raw_text: str) -> dict:
         "certificates": _extract_languages(sections.get("certificates", "")),
         "summary": sections.get("summary", "") or None,
     }
-    return parsed

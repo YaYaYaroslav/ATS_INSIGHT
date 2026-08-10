@@ -12,13 +12,16 @@ app = FastAPI(title=settings.PROJECT_NAME, debug=settings.DEBUG)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.FRONTEND_BASE_URL],
+    allow_origins=settings.FRONTEND_BASE_URL,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 app.include_router(api_router, prefix=settings.API_V1_PREFIX)
+
+# Schema is managed by Alembic — run `alembic upgrade head` before starting.
+
 
 @app.get("/")
 def root():

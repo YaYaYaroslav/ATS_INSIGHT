@@ -21,7 +21,7 @@ export default function RegisterPage() {
       setDone(true);
     } catch (err) {
       const detail = err.response?.data?.detail;
-      setError(typeof detail === "string" ? detail : "Не вдалося зареєструватись");
+      setError(typeof detail === "string" ? detail : "Could not sign up");
     } finally {
       setLoading(false);
     }
@@ -36,15 +36,15 @@ export default function RegisterPage() {
           </div>
           <Card>
             <div className="text-signal text-2xl mb-3">✓</div>
-            <p className="text-sm text-text-primary mb-2">Перевір пошту</p>
+            <p className="text-sm text-text-primary mb-2">Check your inbox</p>
             <p className="text-sm text-text-muted">
-              Ми надіслали лист на <span className="text-text-primary font-mono">{email}</span> з посиланням для
-              підтвердження акаунта. Перейди за ним, щоб мати змогу увійти.
+              We sent an email to <span className="text-text-primary font-mono">{email}</span> with a link
+              to verify your account. Follow it before logging in.
             </p>
           </Card>
           <div className="text-sm text-text-muted mt-4">
             <Link to="/login" className="text-signal hover:underline">
-              До входу
+              Back to login
             </Link>
           </div>
         </div>
@@ -59,18 +59,18 @@ export default function RegisterPage() {
           <div className="font-display text-2xl font-semibold">
             ATS <span className="text-signal">Insight</span>
           </div>
-          <div className="text-text-muted text-sm mt-2">Створи акаунт</div>
+          <div className="text-text-muted text-sm mt-2">Create an account</div>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-base-surface border border-base-border rounded-lg p-6 space-y-4">
           <ErrorBanner message={error} />
           <div>
-            <label className="block text-xs text-text-muted mb-1.5">Ім'я (необов'язково)</label>
+            <label className="block text-xs text-text-muted mb-1.5">Full name (optional)</label>
             <input
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               className="w-full bg-base-surfaceAlt border border-base-border rounded-md px-3 py-2.5 text-sm focus:border-signal outline-none"
-              placeholder="Твоє ім'я"
+              placeholder="Your name"
             />
           </div>
           <div>
@@ -85,7 +85,7 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="block text-xs text-text-muted mb-1.5">Пароль (мінімум 8 символів)</label>
+            <label className="block text-xs text-text-muted mb-1.5">Password (minimum 8 characters)</label>
             <input
               type="password"
               required
@@ -97,14 +97,14 @@ export default function RegisterPage() {
             />
           </div>
           <PrimaryButton type="submit" disabled={loading} className="w-full">
-            {loading ? "Реєстрація..." : "Зареєструватись"}
+            {loading ? "Signing up..." : "Sign up"}
           </PrimaryButton>
         </form>
 
         <div className="text-center text-sm text-text-muted mt-4">
-          Вже є акаунт?{" "}
+          Already have an account?{" "}
           <Link to="/login" className="text-signal hover:underline">
-            Увійти
+            Log in
           </Link>
         </div>
       </div>

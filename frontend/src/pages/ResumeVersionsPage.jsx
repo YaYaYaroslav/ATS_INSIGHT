@@ -21,31 +21,31 @@ export default function ResumeVersionsPage() {
     resumesApi
       .versions(id)
       .then(setVersions)
-      .catch(() => setError("Не вдалося завантажити версії резюме"))
+      .catch(() => setError("Could not load resume versions"))
       .finally(() => setLoading(false));
   }, [id]);
 
   return (
     <Layout>
-      <h1 className="font-display text-2xl font-semibold mb-1">Порівняння версій</h1>
+      <h1 className="font-display text-2xl font-semibold mb-1">Version comparison</h1>
       <p className="text-text-muted text-sm mb-8">
-        Прогрес твого резюме від версії до версії — завантаж нову версію на сторінці резюме
+        Track your resume's progress across versions — upload a new version from the resumes page
       </p>
 
       <ErrorBanner message={error} />
 
       {loading ? (
-        <Spinner label="Завантажую версії..." />
+        <Spinner label="Loading versions..." />
       ) : (
         <Card className="p-0 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-base-border text-text-muted text-xs uppercase tracking-wider">
-                <th className="text-left px-5 py-3 font-normal">Версія</th>
+                <th className="text-left px-5 py-3 font-normal">Version</th>
                 <th className="text-left px-5 py-3 font-normal">ATS Score</th>
                 <th className="text-left px-5 py-3 font-normal">Match</th>
                 <th className="text-left px-5 py-3 font-normal">AI Score</th>
-                <th className="text-left px-5 py-3 font-normal">Дата</th>
+                <th className="text-left px-5 py-3 font-normal">Date</th>
                 <th className="px-5 py-3"></th>
               </tr>
             </thead>
@@ -63,11 +63,11 @@ export default function ResumeVersionsPage() {
                     {v.ai_score != null ? `${v.ai_score.toFixed(1)}/10` : "—"}
                   </td>
                   <td className="px-5 py-3.5 text-text-faint text-xs">
-                    {new Date(v.created_at).toLocaleDateString("uk-UA")}
+                    {new Date(v.created_at).toLocaleDateString("en-US")}
                   </td>
                   <td className="px-5 py-3.5 text-right">
                     <Link to={`/analyze?resumeId=${v.resume_id}`}>
-                      <PrimaryButton className="text-xs px-3 py-1.5">Аналізувати</PrimaryButton>
+                      <PrimaryButton className="text-xs px-3 py-1.5">Analyze</PrimaryButton>
                     </Link>
                   </td>
                 </tr>

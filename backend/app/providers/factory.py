@@ -7,6 +7,8 @@ logger = logging.getLogger(__name__)
 
 
 class NoOpProvider(BaseAIProvider):
+    """Used when AI_PROVIDER=none — the app works without AI, as designed."""
+
     def generate_recommendations(self, resume_parsed, job_parsed, missing_skills, overall_score) -> dict:
         return {"recommendations": [], "ai_score": None, "summary_rewrite": None}
 
@@ -37,7 +39,9 @@ def get_ai_provider() -> BaseAIProvider:
         else:
             _provider_instance = NoOpProvider()
     except Exception as exc:
-        logger.warning("Не вдалося ініціалізувати AI провайдер '%s': %s. Використовую NoOpProvider.", provider_name, exc)
+        # Falls back to NoOp so the rest of the app keeps working even if
+        # the configured provider fails to initialize (e.g. missing API key).
+        logger.warning("Failed to initialize AI provider '%s': %s. Using NoOpProvider.", provider_name, exc)
         _provider_instance = NoOpProvider()
 
     return _provider_instance

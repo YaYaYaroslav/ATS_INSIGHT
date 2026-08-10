@@ -2,6 +2,9 @@ from abc import ABC, abstractmethod
 
 
 class BaseAIProvider(ABC):
+    """Common contract for all AI providers so swapping providers is a config change,
+    not a code change."""
+
     @abstractmethod
     def generate_recommendations(
         self,
@@ -10,6 +13,7 @@ class BaseAIProvider(ABC):
         missing_skills: list[str],
         overall_score: float,
     ) -> dict:
+        """Returns {"recommendations": [...], "ai_score": 0-10, "summary_rewrite": "..."}."""
         raise NotImplementedError
 
     @abstractmethod

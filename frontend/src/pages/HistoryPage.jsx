@@ -19,22 +19,22 @@ export default function HistoryPage() {
     analysesApi
       .list()
       .then(setItems)
-      .catch(() => setError("Не вдалося завантажити історію"))
+      .catch(() => setError("Could not load history"))
       .finally(() => setLoading(false));
   }, []);
 
   return (
     <Layout>
-      <h1 className="font-display text-2xl font-semibold mb-1">Історія аналізів</h1>
-      <p className="text-text-muted text-sm mb-8">Всі попередні перевірки резюме проти вакансій</p>
+      <h1 className="font-display text-2xl font-semibold mb-1">Analysis history</h1>
+      <p className="text-text-muted text-sm mb-8">All past resume-vs-job checks</p>
 
       <ErrorBanner message={error} />
 
       {loading ? (
-        <Spinner label="Завантажую..." />
+        <Spinner label="Loading..." />
       ) : items.length === 0 ? (
         <Card className="text-center py-12">
-          <p className="text-text-muted text-sm">Ще немає жодного аналізу.</p>
+          <p className="text-text-muted text-sm">No analyses yet.</p>
         </Card>
       ) : (
         <div className="grid gap-2">
@@ -44,7 +44,7 @@ export default function HistoryPage() {
                 <div className="text-sm">
                   <span className="text-text-muted font-mono">#{item.id}</span>{" "}
                   <span className="text-text-faint text-xs ml-2">
-                    {new Date(item.created_at).toLocaleString("uk-UA")}
+                    {new Date(item.created_at).toLocaleString("en-US")}
                   </span>
                 </div>
                 <div className="flex items-center gap-6 font-mono text-sm">

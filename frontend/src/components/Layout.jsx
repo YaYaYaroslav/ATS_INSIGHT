@@ -3,10 +3,10 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 
 const NAV_ITEMS = [
-  { to: "/", label: "Резюме", icon: "▤" },
-  { to: "/jobs", label: "Вакансії", icon: "◨" },
-  { to: "/analyze", label: "Новий аналіз", icon: "◎" },
-  { to: "/history", label: "Історія", icon: "≣" },
+  { to: "/", label: "Resumes", icon: "▤" },
+  { to: "/jobs", label: "Jobs", icon: "◨" },
+  { to: "/analyze", label: "New analysis", icon: "◎" },
+  { to: "/history", label: "History", icon: "≣" },
 ];
 
 export default function Layout({ children }) {
@@ -25,7 +25,7 @@ export default function Layout({ children }) {
           <div className="font-display text-lg font-semibold tracking-tight">
             ATS <span className="text-signal">Insight</span>
           </div>
-          <div className="text-xs text-text-faint mt-1 font-mono">резюме ↔ вакансія</div>
+          <div className="text-xs text-text-faint mt-1 font-mono">resume ↔ job match</div>
         </div>
 
         <nav className="flex-1 px-3 space-y-1">
@@ -53,7 +53,7 @@ export default function Layout({ children }) {
             onClick={handleLogout}
             className="w-full text-left px-3 py-2.5 rounded-md text-sm text-text-muted hover:text-gap hover:bg-base-surface transition-colors"
           >
-            Вийти
+            Log out
           </button>
         </div>
       </aside>

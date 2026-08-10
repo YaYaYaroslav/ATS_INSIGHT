@@ -14,7 +14,6 @@ class Analysis(Base):
     resume_id: Mapped[int] = mapped_column(ForeignKey("resumes.id"), nullable=False)
     job_id: Mapped[int] = mapped_column(ForeignKey("jobs.id"), nullable=False)
 
-    # --- ATS Score breakdown (0-100 кожен) ---
     skills_score: Mapped[float] = mapped_column(Float, default=0)
     experience_score: Mapped[float] = mapped_column(Float, default=0)
     education_score: Mapped[float] = mapped_column(Float, default=0)

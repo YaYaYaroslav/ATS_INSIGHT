@@ -1,3 +1,5 @@
+"""Rule-based job description parser (no AI) so matching works without an AI provider."""
+
 import re
 
 from app.services.resume_parser import KNOWN_SKILLS
@@ -72,10 +74,9 @@ def parse_job_description(raw_text: str) -> dict:
     nice_to_have = _extract_skills_from_text(nice_block) if nice_block else []
 
     required_skills = [s for s in all_skills if s not in nice_to_have]
-
     responsibilities_block = _find_section(text_lower, RESPONSIBILITY_MARKERS)
 
-    parsed = {
+    return {
         "required_skills": required_skills,
         "nice_to_have": nice_to_have,
         "experience_years": _extract_experience_years(text),
@@ -83,4 +84,3 @@ def parse_job_description(raw_text: str) -> dict:
         "responsibilities": _extract_responsibilities(responsibilities_block),
         "keywords": sorted(tokenize_words(text) & (KNOWN_SKILLS | set(required_skills))),
     }
-    return parsed

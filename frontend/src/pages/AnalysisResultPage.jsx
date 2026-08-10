@@ -25,7 +25,7 @@ export default function AnalysisResultPage() {
     analysesApi
       .get(id)
       .then(setAnalysis)
-      .catch(() => setError("Не вдалося завантажити аналіз"));
+      .catch(() => setError("Could not load this analysis"));
   }, [id]);
 
   const handleInterviewTips = async () => {
@@ -51,7 +51,7 @@ export default function AnalysisResultPage() {
   if (!analysis) {
     return (
       <Layout>
-        <Spinner label="Завантажую результат..." />
+        <Spinner label="Loading result..." />
       </Layout>
     );
   }
@@ -63,7 +63,7 @@ export default function AnalysisResultPage() {
 
   return (
     <Layout>
-      <h1 className="font-display text-2xl font-semibold mb-8">Результат аналізу</h1>
+      <h1 className="font-display text-2xl font-semibold mb-8">Analysis result</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 mb-8">
         <Card className="flex flex-col items-center justify-center gap-3">
@@ -74,7 +74,7 @@ export default function AnalysisResultPage() {
         </Card>
 
         <Card>
-          <div className="text-xs uppercase tracking-wider text-text-muted mb-4">Розбивка скору</div>
+          <div className="text-xs uppercase tracking-wider text-text-muted mb-4">Score breakdown</div>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={chartData} layout="vertical" margin={{ left: 20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#262B35" horizontal={false} />
@@ -92,22 +92,26 @@ export default function AnalysisResultPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Card>
-          <div className="text-xs uppercase tracking-wider text-text-muted mb-3">Збіги ({analysis.matched_skills.length})</div>
+          <div className="text-xs uppercase tracking-wider text-text-muted mb-3">
+            Matched ({analysis.matched_skills.length})
+          </div>
           <div className="flex flex-wrap gap-2">
             {analysis.matched_skills.length ? (
               analysis.matched_skills.map((s) => <SkillBadge key={s} label={s} variant="match" />)
             ) : (
-              <span className="text-text-faint text-sm">Немає збігів</span>
+              <span className="text-text-faint text-sm">No matches</span>
             )}
           </div>
         </Card>
         <Card>
-          <div className="text-xs uppercase tracking-wider text-text-muted mb-3">Відсутні ({analysis.missing_skills.length})</div>
+          <div className="text-xs uppercase tracking-wider text-text-muted mb-3">
+            Missing ({analysis.missing_skills.length})
+          </div>
           <div className="flex flex-wrap gap-2">
             {analysis.missing_skills.length ? (
               analysis.missing_skills.map((s) => <SkillBadge key={s} label={s} variant="gap" />)
             ) : (
-              <span className="text-text-faint text-sm">Немає прогалин 🎉</span>
+              <span className="text-text-faint text-sm">No gaps 🎉</span>
             )}
           </div>
         </Card>
@@ -116,7 +120,7 @@ export default function AnalysisResultPage() {
       {(analysis.ai_recommendations?.length > 0 || analysis.ai_summary_rewrite) && (
         <Card className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <div className="text-xs uppercase tracking-wider text-text-muted">AI-рекомендації</div>
+            <div className="text-xs uppercase tracking-wider text-text-muted">AI recommendations</div>
             {analysis.ai_score != null && (
               <div className="font-mono text-sm text-signal">{analysis.ai_score.toFixed(1)}/10</div>
             )}
@@ -124,7 +128,7 @@ export default function AnalysisResultPage() {
 
           {analysis.ai_summary_rewrite && (
             <div className="mb-5 p-4 bg-base-surfaceAlt rounded-md border border-base-border">
-              <div className="text-xs text-text-muted mb-2">Переписаний Summary</div>
+              <div className="text-xs text-text-muted mb-2">Rewritten summary</div>
               <p className="text-sm text-text-primary leading-relaxed">{analysis.ai_summary_rewrite}</p>
             </div>
           )}
@@ -142,10 +146,10 @@ export default function AnalysisResultPage() {
 
       <Card>
         <div className="flex items-center justify-between mb-3">
-          <div className="text-xs uppercase tracking-wider text-text-muted">Поради до співбесіди</div>
+          <div className="text-xs uppercase tracking-wider text-text-muted">Interview tips</div>
           {!tips && (
             <SecondaryButton onClick={handleInterviewTips} disabled={loadingTips}>
-              {loadingTips ? "Генерую..." : "Згенерувати"}
+              {loadingTips ? "Generating..." : "Generate"}
             </SecondaryButton>
           )}
         </div>
@@ -159,7 +163,7 @@ export default function AnalysisResultPage() {
                 </li>
               ))
             ) : (
-              <span className="text-text-faint text-sm">Не вдалося згенерувати поради</span>
+              <span className="text-text-faint text-sm">Could not generate tips</span>
             )}
           </ul>
         )}

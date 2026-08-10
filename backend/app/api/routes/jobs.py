@@ -16,12 +16,7 @@ router = APIRouter(prefix="/jobs", tags=["Jobs"])
 def create_job(payload: JobCreate, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     parsed_data = parse_job_description(payload.raw_text)
 
-    job = Job(
-        user_id=current_user.id,
-        title=payload.title,
-        raw_text=payload.raw_text,
-        parsed_data=parsed_data,
-    )
+    job = Job(user_id=current_user.id, title=payload.title, raw_text=payload.raw_text, parsed_data=parsed_data)
     db.add(job)
     db.commit()
     db.refresh(job)
@@ -30,11 +25,7 @@ def create_job(payload: JobCreate, current_user: User = Depends(get_current_user
 
 @router.post("/from-url", response_model=JobOut, status_code=201)
 def create_job_from_url(payload: JobFromUrl, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """
-    Приймає посилання на вакансію (robota.ua, work.ua, або будь-який інший
-    сайт — через generic fallback), сам витягує текст опису і одразу парсить
-    його в structured job data — не треба копіювати текст вручну.
-    """
+    """Fetches the job posting from a URL and parses it into structured job data."""
     try:
         scraped = scrape_job_posting(payload.url)
     except ScraperError as exc:
@@ -42,12 +33,7 @@ def create_job_from_url(payload: JobFromUrl, current_user: User = Depends(get_cu
 
     parsed_data = parse_job_description(scraped["raw_text"])
 
-    job = Job(
-        user_id=current_user.id,
-        title=scraped.get("title"),
-        raw_text=scraped["raw_text"],
-        parsed_data=parsed_data,
-    )
+    job = Job(user_id=current_user.id, title=scraped.get("title"), raw_text=scraped["raw_text"], parsed_data=parsed_data)
     db.add(job)
     db.commit()
     db.refresh(job)
@@ -63,7 +49,7 @@ def list_jobs(current_user: User = Depends(get_current_user), db: Session = Depe
 def get_job(job_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     job = db.query(Job).filter(Job.id == job_id, Job.user_id == current_user.id).first()
     if not job:
-        raise HTTPException(status_code=404, detail="Вакансію не знайдено")
+        raise HTTPException(status_code=404, detail="Job not found")
     return job
 
 
@@ -71,6 +57,6 @@ def get_job(job_id: int, current_user: User = Depends(get_current_user), db: Ses
 def delete_job(job_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     job = db.query(Job).filter(Job.id == job_id, Job.user_id == current_user.id).first()
     if not job:
-        raise HTTPException(status_code=404, detail="Вакансію не знайдено")
+        raise HTTPException(status_code=404, detail="Job not found")
     db.delete(job)
     db.commit()

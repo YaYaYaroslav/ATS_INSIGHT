@@ -1,9 +1,6 @@
 import React from "react";
 
-/**
- * Signature-елемент дизайну: круговий індикатор, що "сканує" бал резюме,
- * як радар. Колір дуги залежить від скору (низький -> gap, високий -> match).
- */
+/** Signature UI element: a circular gauge that "scans" the resume score, radar-style. */
 export default function ScoreGauge({ score = 0, size = 168, label = "ATS Score" }) {
   const clamped = Math.max(0, Math.min(100, score));
   const radius = (size - 16) / 2;
@@ -15,20 +12,9 @@ export default function ScoreGauge({ score = 0, size = 168, label = "ATS Score" 
   return (
     <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="scan-sweep" style={{ transformOrigin: "50% 50%" }}>
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="#262B35"
-          strokeWidth="10"
-        />
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#262B35" strokeWidth="10" />
       </svg>
-      <svg
-        width={size}
-        height={size}
-        className="absolute top-0 left-0 -rotate-90"
-      >
+      <svg width={size} height={size} className="absolute top-0 left-0 -rotate-90">
         <circle
           cx={size / 2}
           cy={size / 2}
