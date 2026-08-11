@@ -143,7 +143,7 @@ export default function JobsPage() {
       ) : (
         <div className="grid gap-3">
           {jobs.map((job) => (
-            <Card key={job.id} className="flex items-center justify-between">
+            <Card key={job.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <div className="font-medium text-sm">{job.title || "Untitled"}</div>
                 <div className="text-xs text-text-muted font-mono mt-1">

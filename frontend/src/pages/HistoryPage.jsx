@@ -40,7 +40,7 @@ export default function HistoryPage() {
         <div className="grid gap-2">
           {items.map((item) => (
             <Link key={item.id} to={`/analyses/${item.id}`}>
-              <Card className="flex items-center justify-between hover:border-signal/40 transition-colors">
+              <Card className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 hover:border-signal/40 transition-colors">
                 <div className="text-sm">
                   <span className="text-text-muted font-mono">#{item.id}</span>{" "}
                   <span className="text-text-faint text-xs ml-2">

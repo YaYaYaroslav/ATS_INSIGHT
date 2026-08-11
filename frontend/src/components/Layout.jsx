@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 const NAV_ITEMS = [
   { to: "/", label: "Resumes", icon: "▤" },
   { to: "/jobs", label: "Jobs", icon: "◨" },
-  { to: "/analyze", label: "New analysis", icon: "◎" },
+  { to: "/analyze", label: "Analyze", icon: "◎" },
   { to: "/history", label: "History", icon: "≣" },
 ];
 
@@ -19,8 +19,19 @@ export default function Layout({ children }) {
   };
 
   return (
-    <div className="min-h-screen flex bg-base-bg text-text-primary font-body">
-      <aside className="w-60 shrink-0 border-r border-base-border flex flex-col">
+    <div className="min-h-screen flex flex-col md:flex-row bg-base-bg text-text-primary font-body">
+      {/* Mobile top bar (hidden on desktop, where the sidebar takes over) */}
+      <header className="md:hidden sticky top-0 z-20 flex items-center justify-between border-b border-base-border bg-base-bg px-4 h-14 shrink-0">
+        <div className="font-display text-base font-semibold tracking-tight">
+          ATS <span className="text-signal">Insight</span>
+        </div>
+        <button onClick={handleLogout} className="text-text-muted hover:text-gap text-sm px-2 py-1">
+          Log out
+        </button>
+      </header>
+
+      {/* Desktop sidebar (hidden on mobile, where the bottom tab bar takes over) */}
+      <aside className="hidden md:flex w-60 shrink-0 border-r border-base-border flex-col">
         <div className="px-6 py-6">
           <div className="font-display text-lg font-semibold tracking-tight">
             ATS <span className="text-signal">Insight</span>
@@ -58,9 +69,32 @@ export default function Layout({ children }) {
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-5xl mx-auto px-8 py-10">{children}</div>
+      {/* pb-20 on mobile clears the fixed bottom tab bar below */}
+      <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
+        <div className="max-w-5xl mx-auto px-4 py-6 md:px-8 md:py-10">{children}</div>
       </main>
+
+      {/* Mobile bottom tab bar */}
+      <nav
+        className="md:hidden fixed bottom-0 left-0 right-0 z-20 flex border-t border-base-border bg-base-surface"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
+        {NAV_ITEMS.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.to === "/"}
+            className={({ isActive }) =>
+              `flex-1 flex flex-col items-center justify-center gap-0.5 py-2.5 text-[11px] ${
+                isActive ? "text-signal" : "text-text-muted"
+              }`
+            }
+          >
+            <span className="font-mono text-base leading-none">{item.icon}</span>
+            {item.label}
+          </NavLink>
+        ))}
+      </nav>
     </div>
   );
 }

@@ -38,7 +38,8 @@ export default function ResumeVersionsPage() {
         <Spinner label="Loading versions..." />
       ) : (
         <Card className="p-0 overflow-hidden">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[560px]">
             <thead>
               <tr className="border-b border-base-border text-text-muted text-xs uppercase tracking-wider">
                 <th className="text-left px-5 py-3 font-normal">Version</th>
@@ -74,6 +75,7 @@ export default function ResumeVersionsPage() {
               ))}
             </tbody>
           </table>
+          </div>
         </Card>
       )}
     </Layout>
